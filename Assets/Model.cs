@@ -37,7 +37,7 @@ public class Model : MonoBehaviour {
 			transform.localScale = originScl;
 			transform.rotation = originRot;
 		}else{
-			transform.localScale = Vector3.one * scaleInHeld;
+			// transform.localScale = Vector3.one * scaleInHeld;
 			transform.localPosition = Vector3.zero;
 			transform.localRotation = Quaternion.Euler (heldRotDiff);
 		}

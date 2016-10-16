@@ -4,6 +4,11 @@ using System.Collections;
 // モデルをつかんだり離したりする
 public class HoldModel : MonoBehaviour {
 
+	/// <summary>
+	/// 何かをつかんでいるときのオブジェクトのスケール
+	/// </summary>
+	const float scaleInHeld = 0.1f;
+
 	const float HoldRange = 1f;
 	GameObject holdTargetObject;
 	GameObject holdObject = null;
@@ -59,6 +64,16 @@ public class HoldModel : MonoBehaviour {
 		if (device.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger)) {
 			Release ();
 		}
+
+		// タッチパッドが押されたかどうか
+		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Touchpad)) {
+			Vector2 pos = device.GetAxis ();
+			if (pos.x > 0.5f) {
+				ChangeFObjectScale (true);
+			} else if (pos.x < 0.5f) {
+				ChangeFObjectScale (false);
+			}
+		}
 	}
 
 	/// <summary>
@@ -78,6 +93,7 @@ public class HoldModel : MonoBehaviour {
 		holdObject.transform.SetParent( transform );
 		holdObject.transform.position = Vector3.zero;
 		holdObject.transform.rotation = Quaternion.identity;
+		holdObject.transform.localScale = Vector3.one * scaleInHeld;
 	}
 
 	/// <summary>
@@ -97,8 +113,33 @@ public class HoldModel : MonoBehaviour {
 		holdObject = null;
 	}
 
+	/// <summary>
+	/// コントローラのビジュアルの表示 / 非表示を切り替える
+	/// </summary>
 	void UpdateModelVisibility()
 	{
 		model.SetActive (holdObject == null);
+	}
+
+	/// <summary>
+	/// つかんでいるオブジェクトの大きさを変更する
+	/// </summary>
+	/// <param name="largen">大きくするか？</param>
+	void ChangeFObjectScale(bool largen){
+		if (holdObject == null) {
+			Debug.LogWarning ("つかんでいるオブジェクトなし");
+			return;
+		}
+
+		// 一回で変更されるスケール値
+		float unitScale = 0.01f;
+
+		if (!largen) {
+			unitScale *= -1f;
+		} 
+
+		float currentScale = holdObject.transform.localScale.x;
+		holdObject.transform.localScale = Vector3.one * ( currentScale + unitScale );
+
 	}
 }
